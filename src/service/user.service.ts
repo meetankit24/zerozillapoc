@@ -1,37 +1,73 @@
-import { DocumentDefinition, FilterQuery } from "mongoose";
-import { omit } from "lodash";
-import User, { UserDocument } from "../model/user.model";
+import Client from "../model/client.model";
+import Agency from "../model/agency.model";
+import log from "../logger";
 
-export async function createUser(input: DocumentDefinition<UserDocument>) {
+
+export async function findByEmailOrMobileNo(params) {
   try {
-    return await User.create(input);
-  } catch (error) {
-    throw new Error(error);
+    let query: any = {};
+    query["$or"] = [{ "email": params.email }, { "countryCode": params.countryCode, "mobileNo": params.mobileNo }];
+    query.status = { $ne: "DELETED" };
+
+    let options: any = { lean: true };
+    return (params?.userType === 1) ? await Client.findOne(query, {}, options) : await Agency.findOne(query, {}, options);
+
+  } catch (error: any) {
+    log.error(error);
+    return { status: 401, message: error.message };
   }
 }
 
-export async function findUser(query: FilterQuery<UserDocument>) {
-  return User.findOne(query).lean();
+export async function checkUserExist(params) {
+  try {
+    let query: any = {};
+    query._id = params?.userId;
+    query.status = { $ne: "DELETED" };
+
+    let options: any = { lean: true };
+    const resp = await Client.findOne(query, {}, options);
+
+    return resp;
+
+  } catch (error: any) {
+    log.error(error);
+    return { status: 401, message: error.message };
+  }
 }
 
-export async function validatePassword({
-  email,
-  password,
-}: {
-  email: UserDocument["email"];
-  password: string;
-}) {
-  const user = await User.findOne({ email });
+export async function signup(data, options?) {
+  try {
+    data.createdAt = new Date().getTime();
+    return (data?.userType === 1) ?
+      await new Client(data).save(options) :
+      await new Agency(data).save(options);
 
-  if (!user) {
-    return false;
+  } catch (error: any) {
+    log.error(error);
+    return { status: 401, message: error.message };
   }
 
-  const isValid = await user.comparePassword(password);
+}
 
-  if (!isValid) {
-    return false;
+export async function updateClient(data, options?) {
+  try {
+    data.createdAt = new Date().getTime();
+    return await Client.findOneAndUpdate({ _id: data?.userId }, data, { new: true })
+
+  } catch (error: any) {
+    log.error(error);
+    return { status: 401, message: error.message };
   }
 
-  return omit(user.toJSON(), "password");
+}
+
+export async function getClientsOfAgency(pipeline, optons?) {
+  try {
+    const resp = await Agency.aggregate(pipeline).collation({ locale: "en_US", numericOrdering: true });
+    return resp;
+  } catch (error: any) {
+    log.error(error);
+    return { status: 401, message: error.message };
+  }
+
 }

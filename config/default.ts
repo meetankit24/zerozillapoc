@@ -1,10 +1,11 @@
 export default {
-  port: 1337,
+  port: 3001,
   host: "localhost",
-  dbUri: "mongodb://localhost:27017/rest-api",
+  dbUri: "mongodb+srv://cloudlearner:nOvz6slDKZAdcmrR@cloudcluster.1kyjrlw.mongodb.net/zerozilla?retryWrites=true&w=majority",
   saltWorkFactor: 10,
   accessTokenTtl: "15m",
   refreshTokenTtl: "1y",
+  jwtalgo:"HS256",
   privateKey: `-----BEGIN RSA PRIVATE KEY-----
   MIICWwIBAAKBgQCQNBc4IP2ewViqE+ZHbnqGoCZFyAUtrxKmO4k/boSvBisJH6BX
   01ajpafM7c7f5PO+wAcGYIxiTQsv9ml2/cgnB6MWG/YYKDCfbWLNbpvQxYlUCu0f
