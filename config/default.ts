@@ -1,7 +1,7 @@
 export default {
   port: 3001,
   host: "localhost",
-  dbUri: "mongodb+srv://cloudlearner:nOvz6slDKZAdcmrR@cloudcluster.1kyjrlw.mongodb.net/zerozilla?retryWrites=true&w=majority",
+  dbUri: "mongodb://localhost/mydb",
   saltWorkFactor: 10,
   accessTokenTtl: "15m",
   refreshTokenTtl: "1y",
